@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Calendar</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Varela+Round&display=swap" rel="stylesheet">
+
+<style>
+* {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: rgba(243, 246, 248, .5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  gap: 20px;
+}
+
+.month-display {
+  font-size: 42px;
+  color: #4a90e2;
+  font-weight: 500;
+  margin-bottom: -10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.month-display::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background-color: #4a90e2;
+  border-radius: 2px;
+
+}
+
+.calendar-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 700px;
+  gap: 18px;
+  margin: 0 5px;
+}
+
+.remaining-days {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 600px;
+  opacity: 0.6;
+}
+
+.day {
+  width: calc((100% / 8) - 10px);
+  height: 90px;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s ease;
+  position: relative;
+  border: 2px solid rgba(195, 195, 195, .25);
+  box-shadow: white 0px 0px 1px 1px inset,rgba(0, 0, 0, 0.02) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  cursor: pointer;
+}
+
+.remaining-day {
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+}
+
+.weekend {
+  background-color: rgba(243, 246, 248, 1);
+}
+
+.day:hover {
+  transform: translateY(6px);
+  background-color: rgba(200, 200, 200, 0);
+}
+
+.current-day {
+  border: 3px solid #4a90e2;
+  
+}
+
+.past-day:hover {
+  background-color: rgba(200, 200, 200, 0);
+}
+
+.day-name {
+  text-transform: uppercase;
+  font-size: 26px;
+  color: rgba(90, 90, 90, 1);
+  margin-bottom: 0px;
+}
+
+.remaining-day .day-number {
+  font-size: 16px;
+}
+
+.day-number {
+  font-size: 14px;
+  color: rgba(90, 90, 90, .9);
+}
+</style>
+</head>
+<body>
+<div class="month-display">
+  <!-- Month will be added here by JavaScript -->
+</div>
+
+<div class="calendar-container">
+  <div class="day weekend" id="sunday">
+    <span class="day-name">SUN</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day" id="monday">
+    <span class="day-name">MON</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day" id="tuesday">
+    <span class="day-name">TUE</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day" id="wednesday">
+    <span class="day-name">WED</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day" id="thursday">
+    <span class="day-name">THU</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day" id="friday">
+    <span class="day-name">FRI</span>
+    <span class="day-number"></span>
+  </div>
+  <div class="day weekend" id="saturday">
+    <span class="day-name">SAT</span>
+    <span class="day-number"></span>
+  </div>
+</div>
+
+<div class="remaining-days">
+  <!-- Remaining days will be added here by JavaScript -->
+</div>
+
+<script>
+  const daysOfWeekEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const daysOfWeekPt = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+  const monthsEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthsPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+  const language = navigator.language || navigator.userLanguage;
+  const daysOfWeek = language.startsWith('pt') ? daysOfWeekPt : daysOfWeekEn;
+  const months = language.startsWith('pt') ? monthsPt : monthsEn;
+
+  function updateCalendar() {
+    // Update month display
+    const currentDate = new Date();
+    const monthDisplay = document.querySelector('.month-display');
+    monthDisplay.textContent = months[currentDate.getMonth()];
+    
+    // Remove previous current-day class
+    document.querySelector('.current-day')?.classList.remove('current-day');
+    
+    const today = currentDate.getDay();
+    let currentDateNum = currentDate.getDate();
+    currentDateNum -= today;
+
+    // Setup main week
+    const days = document.querySelectorAll('.calendar-container .day');
+    for (let i = 0; i < days.length; i++) {
+      const currentDayIndex = i % 7;
+      const currentDay = daysOfWeek[currentDayIndex].slice(0, 3);
+      days[i].querySelector('.day-name').textContent = currentDay.toUpperCase();
+      if (currentDayIndex === today) {
+        days[i].classList.add('current-day');
+      }
+      let dayNumber = currentDateNum + i;
+
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+      if (dayNumber > lastDayOfMonth) {
+        dayNumber -= lastDayOfMonth;
+      }
+      if (dayNumber < 1) {
+        const previousMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
+        dayNumber += previousMonthLastDay;
+      }
+
+      days[i].querySelector('.day-number').textContent = dayNumber;
+    }
+
+    // Update remaining days
+    const remainingDaysContainer = document.querySelector('.remaining-days');
+    remainingDaysContainer.innerHTML = ''; // Clear existing remaining days
+    
+    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    let lastDisplayedDate = currentDateNum + 6; // Last date in main week
+
+    for (let i = lastDisplayedDate + 1; i <= lastDayOfMonth; i++) {
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'day remaining-day';
+      
+      // Check if this day is a weekend
+      const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+      if (dayDate.getDay() === 0 || dayDate.getDay() === 6) {
+        dayDiv.classList.add('weekend');
+      }
+      
+      const dayNumberSpan = document.createElement('span');
+      dayNumberSpan.className = 'day-number';
+      dayNumberSpan.textContent = i;
+      
+      dayDiv.appendChild(dayNumberSpan);
+      remainingDaysContainer.appendChild(dayDiv);
+    }
+  }
+
+  // Initial update
+  updateCalendar();
+
+  // Update every minute
+  setInterval(updateCalendar, 60000);
+</script>
+
+</body>
+</html>
